@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.obtk.auth.pub.mapper.MenuMapper">
+
+   <select id="findTopMenu" resultType="menu">
+       SELECT DISTINCT m.menuid,m.title,m.url,m.seq,m.parentid
+      FROM menu m JOIN role_menu rm ON m.menuid=rm.menuid
+      WHERE rm.roleid IN
+       <foreach collection="list" item="roleid" separator="," open="(" close=")">
+           #{roleid}
+       </foreach>
+       AND parentid IS NULL order by m.seq
+   </select>
+
+   <select id="findChildMenu" resultType="menu">
+       SELECT DISTINCT m.menuid,m.title,m.url,m.seq,m.parentid
+       FROM menu m JOIN role_menu rm ON m.menuid=rm.menuid
+       WHERE rm.roleid IN
+       <foreach collection="roleids" item="roleid" separator="," open="(" close=")">
+           #{roleid}
+       </foreach>
+       AND parentid=#{parentId} order by m.seq
+   </select>
+</mapper>  

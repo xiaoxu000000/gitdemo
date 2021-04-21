@@ -1,0 +1,103 @@
+﻿<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+<link href="static/h-ui/css/H-ui.min.css" rel="stylesheet" type="text/css" />
+<link href="static/h-ui.admin/css/H-ui.login.css" rel="stylesheet" type="text/css" />
+<link href="static/h-ui.admin/css/style.css" rel="stylesheet" type="text/css" />
+<link href="static/Hui-iconfont/1.0.8/iconfont.css" rel="stylesheet" type="text/css" />
+  <link href="static/verify.css" rel="stylesheet" type="text/css" />
+
+<title>后台登录</title>
+</head>
+<body>
+<input type="hidden" id="TenantId" name="TenantId" value="" />
+<div class="header"></div>
+<div class="loginWraper">
+  <div id="loginform" class="loginBox">
+    <form class="form form-horizontal" >
+      <div class="row cl">
+        <label class="form-label col-xs-3"><i class="Hui-iconfont">&#xe60d;</i></label>
+        <div class="formControls col-xs-8">
+          <input id="username"  type="text" placeholder="账户" class="input-text size-L">
+        </div>
+      </div>
+      <div class="row cl">
+        <label class="form-label col-xs-3"><i class="Hui-iconfont">&#xe60e;</i></label>
+        <div class="formControls col-xs-8">
+          <input id="password"  type="password" placeholder="密码" class="input-text size-L">
+        </div>
+      </div>
+      <div class="row cl">
+        <div class="formControls col-xs-8 col-xs-offset-3">
+          <!--设置普通验证码-->
+          <div id="p1"></div>
+        </div>
+      </div>
+      <div class="row cl">
+        <div class="formControls col-xs-8 col-xs-offset-3">
+          <input id="btnLogin" type="button" class="btn btn-success radius size-L" value="&nbsp;登&nbsp;&nbsp;&nbsp;&nbsp;录&nbsp;">
+          <input type="reset" class="btn btn-default radius size-L" value="&nbsp;取&nbsp;&nbsp;&nbsp;&nbsp;消&nbsp;">
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="footer">Copyright fuliang</div>
+<script type="text/javascript" src="static/jquery-3.4.1.min.js"></script>
+<script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script>
+<script type="text/javascript" src="static/verify.min.js"></script>
+<script src="static/layer/2.4/layer.js"></script>
+<script>
+    $(()=>{
+        //验证码插件
+        $("#p1").codeVerify({
+            type : 1,//普通验证码类型
+            width : '300px',
+            height : '50px',
+            fontSize : '30px',
+            codeLength : 4,//验证码字母个数
+            btnId : 'btnLogin',//登录按钮的id
+            success : function() {
+                //获取id为 username的输入框填写的文本值,去除空格
+                let  username=$.trim($("#username").val());
+                if(!username){
+                    //消息弹窗，消息内容，icon图片类型，time弹窗消失的时间
+                    layer.msg('用户名不能为空!',{icon:5,time:2000});
+                    return;
+                }
+                //检查密码框是否有填写
+                let password=$.trim($("#password").val());
+                if(!password){
+                    layer.msg('密码不能为空!',{icon:5,time:2000});
+                    return;
+                }
+                //发送ajax请求
+                $.ajax({
+                    url:"users/login",
+                    data:{username:username,pwd:password},
+                    type:"post",
+                    dataType:"json",
+                    success:function (data) {
+                        if(data.suc){//成功登录
+                            location.href="index.html";
+                        }else{
+                            layer.msg(data.msg,{icon:5,time:2000});
+                        }
+                    }
+                })
+            },
+            error : function() {
+                layer.msg('验证码不匹配!',{icon:5,time:2000});
+            }
+        });
+    })
+</script>
+
+</body>
+</html>

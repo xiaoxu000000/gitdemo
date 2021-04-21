@@ -1,0 +1,144 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+<link rel="stylesheet" type="text/css" href="static/Hui-iconfont/1.0.8/iconfont.css" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+	<link rel="stylesheet" href="static/jquery.easy/themes/default/easyui.css">
+	<link rel="stylesheet" href="static/jquery.easy/themes/icon.css">
+
+<title>角色菜单管理</title>
+</head>
+<body>
+<article class="page-container">
+	<div class="form form-horizontal" >
+		<!--用表单隐藏域传递角色编号-->
+		<input type="hidden" name="roleId" id="roleId" >
+	<div class="row cl">
+		<label class="form-label col-xs-4 col-sm-3">角色名：</label>
+		<div class="formControls col-xs-8 col-sm-9">
+			<input type="text" class="input-text"  id="roleName" name="roleName" readonly>
+		</div>
+	</div>
+	<div class="row cl">
+		<label class="form-label col-xs-4 col-sm-3">选择菜单：</label>
+		<ul id="menuTree" class="col-xs-8 col-sm-9">
+			<!--显示所有菜单的树状节点-->
+		</ul>
+	</div>
+
+	<div class="row cl">
+		<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+			<input class="btn btn-primary radius"  type="button" id="btnSave" value="&nbsp;&nbsp;保存&nbsp;&nbsp;">
+		</div>
+	</div>
+	</div>
+</article>
+
+<!--_footer 作为公共模版分离出去--> 
+<script type="text/javascript" src="static/jquery-3.4.1.min.js"></script>
+<script type="text/javascript" src="static/layui/layui.all.js"></script>
+<script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script> 
+<script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script> <!--/_footer 作为公共模版分离出去-->
+
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="static/jquery.validation/1.14.0/jquery.validate.js"></script>
+<script type="text/javascript" src="static/jquery.validation/1.14.0/validate-methods.js"></script>
+<script type="text/javascript" src="static/jquery.validation/1.14.0/messages_zh.js"></script>
+<script src="static/jquery.easy/jquery.easyui.min.js"></script>
+<script>
+
+
+</script>
+<script type="text/javascript">
+$(function(){
+    //取出浏览器本地缓存的数据
+	let roleId=sessionStorage.getItem("roleid");
+	let roleName=sessionStorage.getItem("rolename");
+	sessionStorage.removeItem("roleid");
+	sessionStorage.removeItem("rolename");
+	$("#roleId").val(roleId);
+	$("#roleName").val(roleName);
+	//查询所有菜单树
+    $("#menuTree").tree({
+        url:"menus/tree/0",
+        type:"post",
+        lines:true,//显示线条
+        animate:true,//动画效果
+        checkbox:true,//显示checkbox框
+        cascadeCheck:false,//级联选中效果
+        onLoadSuccess:function (node,data) {
+			//在所有菜单树节点查询结束后，再按roleId查询要选中的菜单节点
+			$.ajax({
+				url:"roles/menus/"+roleId,
+				dataType:"json",
+				success:function (data) {
+				    //遍历后端返回的所有菜单编号
+					data.forEach(menuId=>{
+					    //按菜单id编号查找菜单树节点
+					    let node1=$("#menuTree").tree("find",menuId);
+					    if(node1){//如果查找到该菜单节点,则选中该菜单节点
+							$("#menuTree").tree("check",node1.target);
+						}
+					})
+                }
+			})
+        }
+    })
+
+
+
+	$("#btnSave").click(function () {
+
+		//ES6语法，将set转换成数组
+		//...用于数组复制
+		// var arr1=[8,9];
+		// for(let i=0;i<arr1.length;i++){
+		//     arr2[i]=arr1[i];
+		// }
+		// var arr2=[...arr1];
+        //获取所有选中的菜单节点
+        var nodes=$("#menuTree").tree("getChecked");
+        //定义set用于存放不重复的菜单编号 ：ES6才有
+        var set=new Set();
+        for(let i=0;i<nodes.length;i++){
+            set.add(nodes[i].id);//添加单个菜单编号到set
+            //获取当前节点的父节点
+            var parent=$("#menuTree").tree("getParent",nodes[i].target);
+            if(parent){
+                set.add(parent.id)
+            }
+        }
+        var ids=[...set];//将set复制给数组
+        var str=ids.join("-");//将数组数据拼接成字符串
+		$.ajax({
+			url:"roles/rolemenu",
+			type:"post",
+			data:{roleId:roleId,ids:str},
+			dataType:"text",
+			success:function (data) {
+                if (data == 1) {
+                    layer.msg('保存成功!', {icon: 1, time: 1000});
+                    setTimeout(function () {
+                        //关闭弹窗
+                        var index = this.parent.layer.getFrameIndex(window.name);
+                        this.parent.layer.close(index);
+
+                    }, 1200)
+                }
+            }
+		})
+    })
+});
+</script> 
+<!--/请在上方写此页面业务相关的脚本-->
+</body>
+</html>

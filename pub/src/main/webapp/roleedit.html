@@ -1,0 +1,110 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="renderer" content="webkit|ie-comp|ie-stand">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<link rel="stylesheet" type="text/css" href="static/h-ui/css/H-ui.min.css" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/H-ui.admin.css" />
+<link rel="stylesheet" type="text/css" href="static/Hui-iconfont/1.0.8/iconfont.css" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/skin/default/skin.css" id="skin" />
+<link rel="stylesheet" type="text/css" href="static/h-ui.admin/css/style.css" />
+	<link rel="stylesheet" href="static/jquery.easy/themes/default/easyui.css">
+	<link rel="stylesheet" href="static/jquery.easy/themes/icon.css">
+
+<title>角色管理</title>
+</head>
+<body>
+<article class="page-container">
+	<form class="form form-horizontal" id="form-role-add">
+		<!--用表单隐藏域传递action参数值-->
+		<input type="hidden" name="roleId" id="roleId" >
+	<div class="row cl">
+		<label class="form-label col-xs-4 col-sm-3"><span class="c-red">*</span>角色名：</label>
+		<div class="formControls col-xs-8 col-sm-9">
+			<input type="text" class="input-text"  id="roleName" name="roleName">
+		</div>
+	</div>
+	<div class="row cl">
+		<label class="form-label col-xs-4 col-sm-3">角色描述</label>
+		<div class="formControls col-xs-8 col-sm-9">
+			<input type="text" class="input-text"  id="beizhu" name="beizhu">
+		</div>
+	</div>
+
+
+	<div class="row cl">
+		<div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+			<input class="btn btn-primary radius" type="submit" value="&nbsp;&nbsp;提交&nbsp;&nbsp;">
+		</div>
+	</div>
+	</form>
+</article>
+
+<!--_footer 作为公共模版分离出去--> 
+<script type="text/javascript" src="static/jquery-3.4.1.min.js"></script>
+<script type="text/javascript" src="static/layui/layui.all.js"></script>
+<script type="text/javascript" src="static/h-ui/js/H-ui.min.js"></script> 
+<script type="text/javascript" src="static/h-ui.admin/js/H-ui.admin.js"></script> <!--/_footer 作为公共模版分离出去-->
+
+<!--请在下方写此页面业务相关的脚本-->
+<script type="text/javascript" src="static/jquery.validation/1.14.0/jquery.validate.js"></script>
+<script type="text/javascript" src="static/jquery.validation/1.14.0/validate-methods.js"></script>
+<script type="text/javascript" src="static/jquery.validation/1.14.0/messages_zh.js"></script>
+<script src="static/jquery.easy/jquery.easyui.min.js"></script>
+<script src="static/pub.js"></script>
+<script type="text/javascript">
+$(function(){
+	var roleId=sessionStorage.getItem("roleId");
+	var type="post";
+	if(roleId){//判断是做修改
+	    type="put";//设置修改的请求方法
+		//删除浏览器临时保存的menuId
+	    sessionStorage.removeItem("roleId");
+	    //按角色编号查询单个角色对象，显示在表单中
+		// $.ajax({
+		//
+		// })
+	}
+
+	//校验表单数据，并且发送ajax表单提交
+	$("#form-role-add").validate({
+        //校验规则
+        rules: {
+            roleName: {
+                required: true
+            }
+        },
+        onkeyup: false,
+        focusCleanup: true,
+        success: "valid",
+        submitHandler: function (form) {
+            $.ajax({
+                url: "roles",
+                type: type,
+                contentType: "application/json;charset=utf-8",
+                data: JSON.stringify(getFormData($(form))),//向后端传json格式参数
+                success: function (data) {
+                    if (data == 1) {
+                        layer.msg('保存成功!', {icon: 1, time: 1000});
+                        setTimeout(function () {
+
+                            //关闭弹窗
+                            var index = parent.layer.getFrameIndex(window.name);
+                            //刷新父页面
+                            window.parent.location.reload();
+                            parent.layer.close(index);
+                        }, 1200)
+                    }
+                }
+            })
+        }
+    })
+});
+</script> 
+<!--/请在上方写此页面业务相关的脚本-->
+</body>
+</html>
