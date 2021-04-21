@@ -23,7 +23,7 @@ public class Test1 {
 
     @Test
     public void test2(){
-
+        //测试方法2
         ApplicationContext applicationContext=
                 new ClassPathXmlApplicationContext("applicationContext.xml");
         MenuMapper menuMapper=(MenuMapper) applicationContext.getBean("menuMapper");
